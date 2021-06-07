@@ -1,0 +1,119 @@
+type Market @entity {
+  id: ID!
+
+  token: Token!
+
+  name: String!
+
+  assetSymbol: String!
+
+  created: BigInt!
+
+  createdAtBlock: BigInt!
+
+  createdAtTransaction: Bytes!
+
+  initialPrice: BigInt!
+  currentPrice: BigInt
+  currentPrice24Change: BigInt
+
+  oraclePrice: BigInt
+  oraclePrice24Change: BigInt
+
+  turnover24: BigInt
+
+  pool: MarketLiquidityPool
+}
+
+type MarketLiquidityPool @entity {
+  # market address
+  id: ID!
+
+  stackedLiquidity: BigInt!
+  unrealizedProfit: BigInt!
+}
+
+type Token @entity {
+  " Token address "
+  id: ID!
+
+  " Token address "
+  address: Bytes!
+
+  " Number of decimals the token uses "
+  decimals: Int!
+
+  " Human-readable name of the token "
+  name: String!
+
+  " Symbol of the token "
+  symbol: String!
+
+  " Associated market "
+  market: Market!
+}
+
+enum PositionStatus {
+  Opened
+  Closed
+  Liquidated
+}
+
+enum PositionType {
+  Long
+  Short
+}
+
+type Position @entity {
+  " Equals to: <marketAddress>-<accountAddress>-<index> "
+  id: ID!
+  
+  market: Market!
+  account: Account!
+  positionType: PositionType!
+  status: PositionStatus!
+  created: BigInt!
+  posIndex: BigInt!
+
+  notional: BigInt!
+  collateral: BigInt!
+  leverage: BigInt!
+  openPrice: BigInt!
+  
+  closePrice: BigInt
+  currentPrice: BigInt
+  oraclePrice: BigInt
+
+  mratio: BigInt
+  pnl: BigInt
+}
+
+type Account @entity {
+  " Account address "
+  id: ID!
+  portfolioTotal: BigInt
+  portfolio24Change: BigInt
+  portfolioWeekChange: BigInt
+  portfolioMonthChange: BigInt
+  
+  marginRatioAvg: BigInt
+  leverageAvg: BigInt
+  exposureTotal: BigInt
+
+  positions: [Position!] @derivedFrom(field: "account")
+}
+
+type PositionMonitor @entity {
+  "Has only one value equal to event.address"
+  id: ID!
+
+  stripsAddress: Bytes!
+
+  "TODO: convert it to Map type"
+  positions: [String!]!
+}
+
+
+type RandomStore @entity {
+  id: ID!
+}
